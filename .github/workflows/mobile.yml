@@ -21,7 +21,7 @@ jobs:
           haxelib run lime config JAVA_HOME $JAVA_HOME_17_X64
           haxelib run lime config ANDROID_SETUP true
       - name: Compile
-        run: haxelib run lime build android -ONLY_ARMV7
+        run: haxelib run lime build android -final
       - name: Upload Artifact
         uses: actions/upload-artifact@main
         with:
@@ -43,13 +43,13 @@ jobs:
           haxelib run hmm install --quiet
           haxelib install openfl
       - name: Compile
-        run: haxelib run lime build ios -nosign
+        run: haxelib run lime build ios -final -nosign
       - name: Make Ipa
         run: |
           cd export/release/ios/build/*-iphoneos
           mkdir Payload
           mv *.app Payload
-          zip -r "Kade Engine Community.ipa" Payload
+          zip -r "Giuss' Maze.ipa" Payload
       - name: Upload Artifact
         uses: actions/upload-artifact@main
         with:
