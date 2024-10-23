@@ -78,6 +78,7 @@ class PlayState extends FlxState
 		storyDialogue.setFormat("assets/fonts/pixel.ttf", 6, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
 		storyDialogue.scrollFactor.set();
 		storyDialogue.screenCenter();
+		storyDialogue.x -= storyDialogue.width / 2;
 		storyDialogue.y += 75;
 
 		npc = new FlxSprite(317, 395);
