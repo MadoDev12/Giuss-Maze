@@ -38,6 +38,9 @@ class PlayState extends FlxState
 	var isNPCDialogue:Bool = false;
 	var npc:FlxSprite;
 	var fnpcd:Bool = true;
+	
+	var eventsXY:Array<Int> = [253, 48, 253, 136, 368, 424];
+	var curDialogue:Array<String>;
 
 	override public function create()
 	{	
@@ -66,10 +69,9 @@ class PlayState extends FlxState
 		textbox.screenCenter();
 		textbox.y += 75;
 
-		storyDialogue = new FlxText(0, 0, 500); // x, y, width
-		storyDialogue.setFormat("assets/fonts/pixel.ttf", 10, FlxColor.WHITE, CENTER);
-		storyDialogue.antialiasing = true;
-		storyDialogue.scrollFactor.set(0,0);
+		storyDialogue = new FlxText(0, 0, 0, 'example text lmao', 6);
+		storyDialogue.setFormat("assets/fonts/pixel.ttf", 6, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
+		storyDialogue.scrollFactor.set();
 		storyDialogue.screenCenter();
 		storyDialogue.y += 75;
 
@@ -81,69 +83,42 @@ class PlayState extends FlxState
 		FlxG.camera.follow(player, TOPDOWN, 1);
 		bgColor = FlxColor.TRANSPARENT;
 		super.create();
-
 	}
 
 	override public function update(elapsed:Float)
 	{
-		if(SwitchLevel._curStage == 3 && player.x < (npc.x + 10) && FlxG.keys.anyJustReleased([ENTER]) || !fnpcd)
+		if(SwitchLevel._curStage == 3 && player.x < 362 && player.y > eventsXY[4] && player.y < eventsXY[5])
 			{
-				switch (dialogueCnt)
-				{
-					case 0:
-						storyDialogue.text = "UHH! You scared me!";
-					case 1:
-						storyDialogue.text = "How did you found me?";
-					case 2:
-						storyDialogue.text = "I've been lost here for months now.";
-					case 3:
-						storyDialogue.text = "What?";
-					case 4:
-						storyDialogue.text = "You want me to follow you?";
-					case 5: 
-						storyDialogue.text = "Are you crazy or something?";
-					case 6:
-						storyDialogue.text = "I won't. Of course.";
-					case 7: 
-						storyDialogue.text = "Imagine following a stranger, huh?";
-					case 8:
-						storyDialogue.text = "Leave me alone now, okay?";
-				}
+				curDialogue = ["UHH! You scared me!", "What are you doing here?", "You seem...", "Similar.",
+				"I think I already saw you.", "You want me to follow you?", "What a question, uhh...", "I don't think I'm going to.",
+				"There's some kind of force forcing me to stay here.", "...", "You can go now.", "..."];
+				storyDialogue.text = curDialogue[dialogueCnt];
 				inDialogue = true;
-				isNPCDialogue = true;
-				fnpcd = true;
 			}
+
+		if(SwitchLevel._curStage == 1 && player.x >= 253 && player.y > eventsXY[1] && player.y < eventsXY[3])
+		{
+			curDialogue = ["Keep on going...", "You shall find me if you want to fix it all..."];
+			storyDialogue.text = curDialogue[dialogueCnt];
+			inDialogue = true;
+		}
 		
 		super.update(elapsed);
 		FlxG.collide(player, walls);
 		FlxG.overlap(player, stageSwitchers, changeLevel);
-		returnToMenu();
-		//events
-		if (SwitchLevel._curStage == 1 && player.y < 135 && player.x > 250)
-		{
-			storyDialogue.text = "Keep going...";
-			inDialogue = true;
-		}
-		if (SwitchLevel._curStage == 2 && (player.y < 424 && player.y > 384) && player.x < 304)
-		{
-			storyDialogue.text = "Don't stop...";
-			inDialogue = true;
-		}
-		if (SwitchLevel._curStage == 3 && player.y > 352 && player.x > 1813)
-		{
-			storyDialogue.text = "You... found me...";
-			inDialogue = true; 
-		}
+		
+		if (FlxG.keys.anyPressed([ESCAPE, BACKSPACE]))
+			FlxG.switchState(new MenuState());
 
 		if (inDialogue)
 		{
 			add(textbox);
 			add(storyDialogue);
 			
-			if (!isNPCDialogue || dialogueCnt == 8)
+			if (dialogueCnt == curDialogue.length)
 				canCloseDialogue = true;
 		}
-		if (FlxG.keys.anyPressed([ENTER]) && isNPCDialogue && !canCloseDialogue)
+		if (FlxG.keys.justPressed.ENTER && !canCloseDialogue)
 			dialogueCnt += 1; 
 		if (FlxG.keys.anyPressed([ENTER]) && canCloseDialogue)
 		{
@@ -153,6 +128,8 @@ class PlayState extends FlxState
 		}
 		if (canCloseDialogue = false)
 			inDialogue = false; 
+		if (FlxG.keys.anyPressed([U]))
+			trace('x: ${player.x} y: ${player.y}');
 	}
 
 	function placeEntities(entity:EntityData)
@@ -165,12 +142,6 @@ class PlayState extends FlxState
 			stageSwitchers.add(new SwitchLevel(entity.x, entity.y));
 	}
 
-	function returnToMenu()
-	{
-		if (FlxG.keys.anyPressed([ESCAPE, BACKSPACE]))
-			FlxG.switchState(new MenuState());
-	}
-
 	static public function changeLevel(player, stageSwitchers):Void
 	{
 		SwitchLevel._curStage += 1;
@@ -181,15 +152,6 @@ class PlayState extends FlxState
 
 	function checkStage()
 	{
-		// do NEVER look what is in SwitchLevel.hx. NEVER.
-		switch (SwitchLevel._curStage)
-		{
-			case 1: 
-				map = new FlxOgmo3Loader("assets/data/levelpreset.ogmo", "assets/data/levels/room_001.json");
-			case 2:
-				map = new FlxOgmo3Loader("assets/data/levelpreset.ogmo", "assets/data/levels/room_002.json");
-			case 3:
-				map = new FlxOgmo3Loader("assets/data/levelpreset.ogmo", "assets/data/levels/room_003.json");
-		}
+		map = new FlxOgmo3Loader("assets/data/levelpreset.ogmo", 'assets/data/levels/room_00${SwitchLevel._curStage}.json');
 	}
 }
