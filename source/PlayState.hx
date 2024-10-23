@@ -44,7 +44,12 @@ class PlayState extends FlxState
 
 	override public function create()
 	{	
-		checkStage();
+		try
+		{
+			checkStage();
+		}
+		catch(e)
+			checkStage();
 		trace(SwitchLevel._curStage);
 		walls = map.loadTilemap(AssetPaths.tiles__png, "walls");
 		walls.follow();
@@ -105,7 +110,7 @@ class PlayState extends FlxState
 		
 		super.update(elapsed);
 		FlxG.collide(player, walls);
-		FlxG.overlap(player, stageSwitchers, changeLevel);
+		FlxG.overlap(player, stageSwitchers, nextLevel);
 		
 		if (FlxG.keys.anyPressed([ESCAPE, BACKSPACE]))
 			FlxG.switchState(new MenuState());
@@ -142,7 +147,7 @@ class PlayState extends FlxState
 			stageSwitchers.add(new SwitchLevel(entity.x, entity.y));
 	}
 
-	static public function changeLevel(player, stageSwitchers):Void
+	static public function nextLevel(player, stageSwitchers):Void
 	{
 		SwitchLevel._curStage += 1;
 		trace("level : " + SwitchLevel._curStage + " .");
@@ -150,8 +155,24 @@ class PlayState extends FlxState
 		FlxG.switchState(new PlayState());
 	}
 
+	static public function changeLevel(stageModifier)
+	{
+		SwitchLevel._curStage += stageModifier;
+		trace("level : " + SwitchLevel._curStage + " .");
+		FlxG.switchState(new PlayState());
+	}
+
 	function checkStage()
 	{
-		map = new FlxOgmo3Loader("assets/data/levelpreset.ogmo", 'assets/data/levels/room_00${SwitchLevel._curStage}.json');
+		try
+		{
+			map = new FlxOgmo3Loader("assets/data/levelpreset.ogmo", 'assets/data/levels/room_00${SwitchLevel._curStage}.json');
+		}
+		catch(e)
+		{
+			trace('No map .json file found. Loading previous stage.');
+			changeLevel(-1);
+		}
+		return map;
 	}
 }
