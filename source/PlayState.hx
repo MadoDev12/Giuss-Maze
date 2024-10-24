@@ -21,6 +21,7 @@ import flixel.util.FlxSave;
 import haxe.rtti.CType.Platforms;
 import haxe.zip.InflateImpl;
 import openfl.net.dns.AAAARecord;
+import Discord;
 
 class PlayState extends FlxState
 {
@@ -78,6 +79,7 @@ class PlayState extends FlxState
 		storyDialogue.setFormat("assets/fonts/pixel.ttf", 6, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
 		storyDialogue.scrollFactor.set();
 		storyDialogue.screenCenter();
+		storyDialogue.antialiasing = true;
 		storyDialogue.x -= storyDialogue.width / 2;
 		storyDialogue.y += 75;
 
@@ -86,6 +88,7 @@ class PlayState extends FlxState
 		if (SwitchLevel._curStage == 3)
 			add(npc);
 
+		Discord.changePresence('Playing Giuss Maze, Level ${SwitchLevel._curStage}');
 		FlxG.camera.follow(player, TOPDOWN, 1);
 		bgColor = FlxColor.TRANSPARENT;
 		super.create();

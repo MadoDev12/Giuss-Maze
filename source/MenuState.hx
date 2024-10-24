@@ -8,6 +8,7 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxBitmapDataUtil;
 import flixel.util.FlxColor;
 import haxe.ds.Option;
+import Discord;
 
 class MenuState extends FlxState
 {
@@ -24,6 +25,8 @@ class MenuState extends FlxState
         playButton.screenCenter();
         
         bgColor = FlxColor.TRANSPARENT;
+
+        Discord.changePresence("On Giuss Maze Main Menu");
         super.create();
     }
 
